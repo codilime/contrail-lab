@@ -1,13 +1,13 @@
 variable "user_name" {
- default = ""
+ default = "AzureDiamond"
 }
 
 variable "password" {
- default = ""
+ default = "hunter2"
 }
 
 variable "ssh_key_file" {
- default = "C:\\Users\\pma\\terraform\\pub_key"
+ default = "~/.ssh/id_rsa.pub"
 }
 
 variable "region" {
