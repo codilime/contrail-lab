@@ -6,7 +6,7 @@ Provisions VMs on OpenStack
 
 1. Download terraform https://www.terraform.io/downloads.html
 2. Unzip it somewhere
-3. In directory that you will run terraform from, update terraform plugins
+3. In this directory, update terraform plugins
 ```
 terraform init
 ```
@@ -22,14 +22,8 @@ ls -a
 mv secrets.tfvars{.example,}
 ```
 
-2. Update contents of`secrets.tfvars`:
-```
-user_name = "AzureDiamond"
-password = "hunter2"
-ssh_key_file = "~/.ssh/path_to_pubkey_to_plant_inside_vm.pub"
-```
-
-3. Apply terraform plan
+2. Update contents of`secrets.tfvars` according to comments inside
+3. From this directory, apply terraform plan
 ```
 terraform apply -var-file="./secrets.tfvars"
 ```
