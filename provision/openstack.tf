@@ -9,25 +9,25 @@ provider "openstack" {
 }
 
 resource "openstack_compute_keypair_v2" "KeyPair"{
- name                   = "KeyPair"
+ name                   = "${replace(var.user_name,".","-")}-KeyPair"
  public_key             = "${file("${var.ssh_key_file}")}"
  region                 = "${var.region}"
 }
 
 resource "openstack_networking_network_v2" "contrail_net" {
- name                   = "contrail_net"
+ name                   = "${var.user_name}-contrail_net"
  admin_state_up         = "true"
 }
 
 resource "openstack_networking_subnet_v2" "subnet_1" {
- name                   = "subnet_1"
+ name                   = "${var.user_name}-subnet_1"
  network_id             = "${openstack_networking_network_v2.contrail_net.id}"
  cidr                   = "192.168.1.0/24"
  ip_version             = 4
 }
 
 resource "openstack_networking_router_v2" "contrail_router_1" {
- name                   = "contrail_router_1"
+ name                   = "${var.user_name}-contrail_router_1"
  admin_state_up         = "true"
  external_network_id    = "d5ae8d1d-c1fe-4f11-8a9d-4137e4ac0eab"
 }
@@ -38,7 +38,7 @@ resource "openstack_networking_router_interface_v2" "int_1" {
 }
 
 resource "openstack_compute_secgroup_v2" "contrail_security_group" {
- name                   = "contrail_security_group"
+ name                   = "${var.user_name}-contrail_security_group"
  description            = "Security Group for contrail_net"
  
  rule {
@@ -50,15 +50,15 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
 }
 
 resource "openstack_compute_instance_v2" "basic" {
-  name                  = "basic"
+  name                  = "${var.user_name}"
   image_id              = "d1ccf955-b11a-4a68-b578-8255367f7f9b"
   flavor_name           = "m2.mini"
-  key_pair              = "${openstack_compute_keypair_v2.KeyPair.name}"
-  security_groups       = ["contrail_security_group"]
+  key_pair              = "${openstack_compute_keypair_v2.KeyPair.id}"
+  security_groups       = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
   region                = "${var.region}"
   
 network {
-  name                  = "contrail_net"
+ uuid                    = "${openstack_networking_network_v2.contrail_net.id}"
   }
 }
 

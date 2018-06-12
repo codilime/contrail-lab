@@ -1,9 +1,9 @@
 variable "user_name" {
- default = "AzureDiamond"
+ default = ""
 }
 
 variable "password" {
- default = "hunter2"
+ default = ""
 }
 
 variable "ssh_key_file" {
