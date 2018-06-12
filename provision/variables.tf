@@ -1,5 +1,5 @@
 variable "user_name" {
- default = ""
+  default = ""
 }
 
 variable "password" {
@@ -7,7 +7,13 @@ variable "password" {
 }
 
 variable "ssh_key_file" {
- default = "~/.ssh/id_rsa.pub"
+ #PATH to public ssh key   
+ default = "C:\\Users\\pma\\terraform\\pub_key1"
+}
+
+variable "ssh_private_key" {
+ #PATH to public ssh key   
+ default = "C:\\Users\\pma\\private.txt"
 }
 
 variable "region" {

@@ -60,6 +60,8 @@ resource "openstack_compute_instance_v2" "basic" {
 network {
  uuid                    = "${openstack_networking_network_v2.contrail_net.id}"
   }
+
+  
 }
 
 resource "openstack_networking_floatingip_v2" "floatip_1" {
@@ -70,6 +72,22 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
  floating_ip            = "${openstack_networking_floatingip_v2.floatip_1.address}"
  instance_id            = "${openstack_compute_instance_v2.basic.id}"
  region                 = "${var.region}"
+
+ provisioner "remote-exec"{
+   connection {
+   type = "ssh"
+   user = "centos"
+   password =""
+   agent = "false"
+   host = "${openstack_networking_floatingip_v2.floatip_1.address}"
+   private_key = "${file(var.ssh_private_key)}"
+   } 
+
+   inline = [
+     "touch /tmp/testfile"
+   ]
+  }
+  
 }
 
 output "IP Address of new instance:" {
@@ -78,5 +96,7 @@ output "IP Address of new instance:" {
 
 output "instance ID" {
  value                  = "${openstack_compute_instance_v2.basic.id}"
+
 }
- 
+
+
