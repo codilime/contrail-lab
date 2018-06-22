@@ -1,33 +1,36 @@
 variable "user_name" {
-  default = ""
+  default = "@USERNAME"
 }
 
 variable "password" {
- default = ""
+ default = "@PASSWORD"
 }
 
-variable "ssh_key_file" {
- #PATH to public ssh key   
- default = "C:\\Users\\pma\\terraform\\pub_key1"
+variable "network_name" {
+  default = "@NETWORK_NAME"
 }
 
-variable "ssh_private_key" {
- #PATH to public ssh key   
- default = "C:\\Users\\pma\\private.txt"
-}
-
-variable "region" {
- default = "RegionOne"
+variable "router_name"{
+    default ="@ROUTER_NAME"
 }
 
 variable "project_id" {
- default="91de03c6ceb849e8b64d7b3fcc794489"
+ default="@PROJECTID"
 }
 
 variable "domain_name" {
- default = "Users"
+ default = "@DOMAIN_NAME"
 }
 
 variable "project_name" {
- default = "JUN-contrail-lab"
+ default = "@PROJECT_NAME"
+}
+
+#Don't touch this ! 
+variable "ssh_key_file" {
+ default = "./id_rsa.pub"
+}
+
+variable "ssh_private_key" {  
+ default = "./id_rsa"
 }

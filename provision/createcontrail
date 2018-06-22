@@ -1,0 +1,52 @@
+#!/bin/bash
+case "$1" in
+	"")
+echo "Script usage:"
+echo "-c|--create       	- creating new instace "
+echo "-d|--destroy      	- destroying instance"
+echo "--import-router [id] 	- import router"
+echo "--import-network [id]	- import network "
+;;
+    --create|-c)
+pwd=$(pwd)
+if [ -e id_rsa ] && [ -e id_rsa.pub ]; then
+    echo "SSH keys exists"
+else 
+echo "Generating ssh keys"
+ssh-keygen -t rsa -N "" -f id_rsa
+fi
+if [ -d contrail-ansible-deployer ]; then
+echo "Repository exists"
+else
+echo "Cloning contrail ansbile deployer"
+git clone http://github.com/Juniper/contrail-ansible-deployer
+fi
+echo "Creating openstack instance"
+./terraform apply -auto-approve
+instance_ip=$( ./terraform output ip )
+echo "Instance created"
+cp -f template.yaml contrail-ansible-deployer/config/instances.yaml
+sed  -i "s|@pwd|${pwd}|g" "$pwd/contrail-ansible-deployer/config/instances.yaml"
+sed  -i "s|@instanceip|${instance_ip}|g" "$pwd/contrail-ansible-deployer/config/instances.yaml"
+cd contrail-ansible-deployer
+echo "Configuring instance" 
+ansible-playbook -i inventory/ playbooks/configure_instances.yml 
+echo "Installing contrail"
+ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml 
+echo "Contrail installed !"
+echo "Your instance ip: $instance_ip"
+;;
+    --destroy|-d)
+echo "Destroing instance"
+./terraform destroy -auto-approve
+echo "Instance destroyed"
+;;
+    --import-network)
+./terraform import openstack_networking_network_v2.network $2
+;;
+    --import-router)
+./terraform import openstack_networking_router_v2.router $2
+;;
+    *)
+;;
+esac
