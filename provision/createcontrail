@@ -38,7 +38,7 @@ echo "Your instance ip: $instance_ip"
 ;;
     --destroy|-d)
 echo "Destroing instance"
-./terraform destroy -auto-approve
+./terraform destroy -auto-approve -target openstack_compute_instance_v2.basic
 echo "Instance destroyed"
 ;;
     --import-network)
