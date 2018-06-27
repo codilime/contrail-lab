@@ -3,7 +3,7 @@
 Provisions VMs on OpenStack
 
 ## Prerequisites
-1. 
+1. Clone contrail lab repository
 ````
 git clone https://github.com/codilime/contrail-lab.git
 ````
