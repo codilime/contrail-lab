@@ -2,6 +2,7 @@
 
 Provisions VMs on OpenStack
 
+Before start, make sure you have ansible installed.
 ## Prerequisites
 1. Clone contrail lab repository
 ````
@@ -21,19 +22,20 @@ terraform init
 ```
 ls -a
 ```
-7. Log in to OpenStack WebUI 
-8. Copy router name and router id from Network/Routers/router_name
-9. Copy network name and network id from with associated subnets from Network/Networks/network_name
-10. Fill up variables.tf file using data from Identity/Projects, Network/Routers, Network/Networks/
-11. Run command 
+7. Add terraform to your PATH
+8. Log in to OpenStack WebUI 
+9. Copy router name and router id from Network/Routers/router_name
+10. Copy network name and network id from with associated subnets from Network/Networks/network_name
+11. Fill up variables.tf file using data from Identity/Projects, Network/Routers, Network/Networks/
+12. Run command 
 ````
 ./createcontrail --import-router [routerID] 
 ````
-12. Run command
+13. Run command
 ````
 ./createcontrail --import-network [networkID]
 ````
-13. Run command to create conrail instance
+14. Run command to create conrail instance
 `````
 ./createcontrail -c
 `````

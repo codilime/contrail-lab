@@ -22,7 +22,7 @@ echo "Cloning contrail ansbile deployer"
 git clone http://github.com/Juniper/contrail-ansible-deployer
 fi
 echo "Creating openstack instance"
-./terraform apply -auto-approve
+terraform apply -auto-approve
 instance_ip=$( ./terraform output ip )
 echo "Instance created"
 cp -f template.yaml contrail-ansible-deployer/config/instances.yaml
