@@ -8,38 +8,21 @@ echo "--import-router [id] 	- import router"
 echo "--import-network [id]	- import network "
 ;;
     --create|-c)
-pwd=$(pwd)
-if [ -e id_rsa ] && [ -e id_rsa.pub ]; then
-    echo "SSH keys exists"
-else 
-echo "Generating ssh keys"
-ssh-keygen -t rsa -N "" -f id_rsa
-fi
-if [ -d contrail-ansible-deployer ]; then
-echo "Repository exists"
+
+if [ -z "${11}" ]
+  then
+terraform apply -auto-approve -state-out=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -var='network_name='$7 -var='ssh_key_file='$8 -var='ssh_private_key='$9 -var='routerip='${10}
 else
-echo "Cloning contrail ansbile deployer"
-git clone http://github.com/Juniper/contrail-ansible-deployer
+
+terraform apply -auto-approve -state-out=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -var='network_name='$7 -var='ssh_key_file='$8 -var='ssh_private_key='$9 -var='routerip='${10} -var='branch='${11}
 fi
-echo "Creating openstack instance"
-terraform apply -auto-approve
-instance_ip=$( ./terraform output ip )
-echo "Instance created"
-cp -f template.yaml contrail-ansible-deployer/config/instances.yaml
-sed  -i "s|@pwd|${pwd}|g" "$pwd/contrail-ansible-deployer/config/instances.yaml"
-sed  -i "s|@instanceip|${instance_ip}|g" "$pwd/contrail-ansible-deployer/config/instances.yaml"
-cd contrail-ansible-deployer
-echo "Configuring instance" 
-ansible-playbook -i inventory/ playbooks/configure_instances.yml 
-echo "Installing contrail"
-ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml 
-echo "Contrail installed !"
-echo "Your instance ip: $instance_ip"
+instance_ip=$( ./terraform output -state $2 ip )
 ;;
     --destroy|-d)
-echo "Destroing instance"
-./terraform destroy -auto-approve -target openstack_compute_instance_v2.basic
-echo "Instance destroyed"
+./terraform destroy -auto-approve -state=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -target openstack_compute_instance_v2.basic
+./terraform destroy -auto-approve -state=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -target openstack_compute_keypair_v2.KeyPair
+./terraform destroy -auto-approve -state=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -target openstack_compute_secgroup_v2.contrail_security_group
+
 ;;
     --import-network)
 ./terraform import openstack_networking_network_v2.network $2

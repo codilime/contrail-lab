@@ -1,0 +1,4 @@
+#!/bin/bash
+cp template.yaml instances.yaml
+sed  -i "s|@localip|$1|g" "instances.yaml"
+sed  -i "s|@routerip|$2|g" "instances.yaml"
