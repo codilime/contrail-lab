@@ -7,7 +7,7 @@ Notice: a lot of stuff is in just in todo stage.
 
 ## Project leaders
 
-Current project leader is Piotr Kostrzewa, so ask him anything :)
+Current project leader is Michał Kostrzewa, so ask him anything :)
 
 # Known limitations
 
