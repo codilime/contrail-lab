@@ -3,46 +3,46 @@ variable "user_name" {
 }
 
 variable "password" {
- default = "@PASSWORD"
+  default = "@PASSWORD"
 }
 
-variable "router_name"{
-    default ="@ROUTER_NAME"
+variable "router_name" {
+  default = "@ROUTER_NAME"
 }
 
 variable "project_id" {
- default="@PROJECTID"
+  default = "@PROJECTID"
 }
 
 variable "network_name" {
- default="@NETWROK_NAME"
+  default = "@NETWROK_NAME"
 }
 
 variable "network_id" {
- default="@NETWORK_ID"
+  default = "@NETWORK_ID"
 }
 
 variable "domain_name" {
- default = "@DOMAIN_NAME"
+  default = "@DOMAIN_NAME"
 }
 
 variable "project_name" {
- default = "@PROJECT_NAME"
+  default = "@PROJECT_NAME"
 }
 
 variable "routerip" {
- default = "@ROUTERIP"
+  default = "@ROUTERIP"
 }
 
 variable "branch" {
-default= "master"
+  default = "master"
 }
 
-#Don't touch this ! 
+#Don't touch this !
 variable "ssh_key_file" {
- default = "./id_rsa.pub"
+  default = "./id_rsa.pub"
 }
 
 variable "ssh_private_key" {
- default = "./id_rsa"
+  default = "./id_rsa"
 }
