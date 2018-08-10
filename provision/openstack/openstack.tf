@@ -153,7 +153,7 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
 
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}"
-  image_id        = "d1ccf955-b11a-4a68-b578-8255367f7f9b"
+  image_id        = "703f5673-564d-40cf-b4f1-0134687809cc"
   flavor_name     = "m2.huge"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
   security_groups = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
