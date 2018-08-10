@@ -1,0 +1,14 @@
+if [ -e sshpubkey ] && [ -e sshprivkey ]; then
+mv sshpubkey ${Login}-key.pub
+mv sshprivkey ${Login}-key.priv
+mv instances_yaml template.yaml 	
+rm -rf sshpubkey
+rm -rf sshprivkey
+chmod 600 ${Login}-key.pub
+chmod 600 ${Login}-key.priv
+./createcontrail ${CreateDestroy} ${Login} ${Password} ${ProjectID} ${domainName} ${projectName} ${networkName} ${Login}-key.pub ${Login}-key.priv ${routerIP} ${orchestrator} ${branch}
+rm -rf ${Login}-key.pub
+rm -rf ${Login}-key.priv
+else
+./createcontrail ${CreateDestroy} ${Login} ${Password} ${ProjectID} ${domainName} ${projectName} ${orchestrator}
+fi
