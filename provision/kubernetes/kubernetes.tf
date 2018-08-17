@@ -184,8 +184,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
 
     inline = [
       "sudo yum -y install kernel-devel kernel-headers ansible git",
-      "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
-      "sudo mkdir /etc/docker",
+      "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch},
     ]
   }
 
@@ -245,6 +244,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
+      "sudo mkdir /etc/docker",
       "sudo cp /tmp/daemon.json /etc/docker/",
     ]
   }

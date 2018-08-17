@@ -6,9 +6,9 @@ rm -rf sshpubkey
 rm -rf sshprivkey
 chmod 600 ${Login}-key.pub
 chmod 600 ${Login}-key.priv
-./createcontrail ${CreateDestroy} ${Login} ${Password} ${ProjectID} ${domainName} ${projectName} ${networkName} ${Login}-key.pub ${Login}-key.priv ${routerIP} ${orchestrator} ${branch}
+./createcontrail "${CreateDestroy}" "${Login}" "${Password}" "${ProjectID}" "${domainName}" "${projectName}" "${networkName}" "${Login}-key.pub" "${Login}-key.priv" "${routerIP}" "${orchestrator}" "${branch}"
 rm -rf ${Login}-key.pub
 rm -rf ${Login}-key.priv
 else
-./createcontrail ${CreateDestroy} ${Login} ${Password} ${ProjectID} ${domainName} ${projectName} ${orchestrator}
+./createcontrail "${CreateDestroy}" "${Login}" "${Password}" "${ProjectID}" "${domainName}" "${projectName}" "${orchestrator}"
 fi
