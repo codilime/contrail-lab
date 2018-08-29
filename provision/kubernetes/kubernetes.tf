@@ -11,7 +11,6 @@ resource "openstack_compute_keypair_v2" "KeyPair" {
   name       = "${replace(var.user_name,".","-")}-KeyPair"
   public_key = "${file("${var.ssh_key_file}")}"
 
-  #private_key		= "${file("${var.ssh_private_key}")}"
 }
 
 resource "openstack_compute_secgroup_v2" "contrail_security_group" {
@@ -154,7 +153,7 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
 
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}"
-  image_id        = "d1ccf955-b11a-4a68-b578-8255367f7f9b"
+  image_id        = "703f5673-564d-40cf-b4f1-0134687809cc"
   flavor_name     = "m2.huge"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
   security_groups = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
@@ -184,11 +183,8 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "sudo yum -y update kernel",
       "sudo yum -y install kernel-devel kernel-headers ansible git",
-      "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
-      "sudo grub2-set-default 0",
-      "sudo mkdir /etc/docker",
+      "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch},
     ]
   }
 
@@ -235,32 +231,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
   }
 
-  provisioner "file" {
-    source      = "fixvrouter.service"
-    destination = "/tmp/fixvrouter.service"
-
-    connection {
-      type        = "ssh"
-      agent       = "false"
-      user        = "centos"
-      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
-      private_key = "${file(var.ssh_private_key)}"
-    }
-  }
-
-  provisioner "file" {
-    source      = "vrouter.sh"
-    destination = "/tmp/vrouter.sh"
-
-    connection {
-      type        = "ssh"
-      agent       = "false"
-      user        = "centos"
-      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
-      private_key = "${file(var.ssh_private_key)}"
-    }
-  }
-
+ 
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
@@ -273,6 +244,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
+      "sudo mkdir /etc/docker",
       "sudo cp /tmp/daemon.json /etc/docker/",
     ]
   }
@@ -289,19 +261,15 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "cd /etc/centos",
-      "sudo git clone http://github.com/Juniper/contrail-ansible-deployer",
+      "cd /home/centos",
       "sudo cp /tmp/instances.yaml /home/centos/contrail-ansible-deployer/config/",
       "sudo cp /tmp/id_rsa /home/centos/",
-      "sudo cp /tmp/fixvrouter.service /usr/lib/systemd/system/",
-      "sudo systemctl enable fixvrouter.service",
-      "sudo cp /tmp/vrouter.sh /usr/local/bin/",
       "sudo chmod +x /usr/local/bin/vrouter.sh",
       "sudo chmod 600 /home/centos/id_rsa",
       "cd contrail-ansible-deployer",
-      "sudo ansible-playbook -e orchestrator=openstack -i inventory/ playbooks/configure_instances.yml",
-      "sudo ansible-playbook -i inventory playbooks/install_openstack.yml -v",
-      "sudo ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml",
+      "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/configure_instances.yml",
+      "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_k8s.yml",
+      "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_contrail.yml",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
       "sudo reboot",
     ]

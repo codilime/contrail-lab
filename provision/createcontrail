@@ -2,33 +2,23 @@
 case "$1" in
 	"")
 echo "Script usage:"
-echo "-c|--create       	- creating new instace "
-echo "-d|--destroy      	- destroying instance"
-echo "--import-router [id] 	- import router"
-echo "--import-network [id]	- import network "
+echo "-c|--create Login Password ProjectID DoaminName ProjectName NetworkName PublicKey PrivateKey RouterIP Orchestrator Branch  - creating new instace "
+echo "Orchestrator could be set to openstack or kubernetes "
+echo "Branch parameter is optional"
+echo "-d|--destroy Login Password ProjectID domainName ProjectName Orchestrator	- destroying instance"
 ;;
     --create|-c)
 
-if [ -z "${11}" ]
-  then
-terraform apply -auto-approve -state-out=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -var='network_name='$7 -var='ssh_key_file='$8 -var='ssh_private_key='$9 -var='routerip='${10}
-else
 
-terraform apply -auto-approve -state-out=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -var='network_name='$7 -var='ssh_key_file='$8 -var='ssh_private_key='$9 -var='routerip='${10} -var='branch='${11}
+if [ -z "${12}" ]
+  then
+terraform apply -auto-approve -state-out="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6" -var='network_name='"$7" -var='ssh_key_file='"$8" -var='ssh_private_key='"$9" -var='routerip='"${10}" ./"${11}"/
+else
+terraform apply -auto-approve -state-out="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6" -var='network_name='"$7" -var='ssh_key_file='"$8" -var='ssh_private_key='"$9" -var='routerip='"${10}" -var='branch='"${12}" ./"${11}"/
 fi
-instance_ip=$( ./terraform output -state $2 ip )
 ;;
     --destroy|-d)
-./terraform destroy -auto-approve -state=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -target openstack_compute_instance_v2.basic
-./terraform destroy -auto-approve -state=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -target openstack_compute_keypair_v2.KeyPair
-./terraform destroy -auto-approve -state=$2 -var='user_name='$2 -var='password='$3 -var='project_id='$4 -var='domain_name='$5 -var='project_name='$6 -target openstack_compute_secgroup_v2.contrail_security_group
-
-;;
-    --import-network)
-./terraform import openstack_networking_network_v2.network $2
-;;
-    --import-router)
-./terraform import openstack_networking_router_v2.router $2
+./terraform destroy -auto-approve -state="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6"  ./"${7}"/
 ;;
     *)
 ;;
