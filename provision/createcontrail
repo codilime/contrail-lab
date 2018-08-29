@@ -18,7 +18,7 @@ terraform apply -auto-approve -state-out="$2" -var='user_name='"$2" -var='passwo
 fi
 ;;
     --destroy|-d)
-./terraform destroy -auto-approve -state="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6"  ./${7}/
+./terraform destroy -auto-approve -state="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6"  ./"${7}"/
 ;;
     *)
 ;;
