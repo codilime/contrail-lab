@@ -25,13 +25,6 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
   }
 
   rule {
-    from_port   = 8143
-    to_port     = 8143
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
     from_port   = 80
     to_port     = 80
     ip_protocol = "tcp"
@@ -39,122 +32,22 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
   }
 
   rule {
-    from_port   = 3306
-    to_port     = 3306
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 5673
-    to_port     = 5673
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 6379
-    to_port     = 6379
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 35357
-    to_port     = 35357
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 11211
-    to_port     = 11211
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 4369
-    to_port     = 4369
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 8083
-    to_port     = 8083
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 8774
-    to_port     = 8774
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 8780
-    to_port     = 8780
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 5050
-    to_port     = 5050
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 6385
-    to_port     = 6385
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 9292
-    to_port     = 9292
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 8080
-    to_port     = 8080
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 8086
-    to_port     = 8086
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 2181
-    to_port     = 2181
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 6080
-    to_port     = 6080
+    from_port   = 1024
+    to_port     = 65535
     ip_protocol = "tcp"
     cidr        = "0.0.0.0/0"
   }
 }
 
+resource "openstack_blockstorage_volume_v2" "volume" {
+  name = "${var.user_name}-volume"
+  size = 100
+}
+
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}"
   image_id        = "703f5673-564d-40cf-b4f1-0134687809cc"
-  flavor_name     = "m2.huge"
+  flavor_name     = "m2.large"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
   security_groups = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
 
@@ -231,7 +124,6 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
   }
 
- 
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
@@ -271,7 +163,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo ansible-playbook -i inventory playbooks/install_openstack.yml -v",
       "sudo ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
-      "sudo reboot",
+      "sudo shutdown -r 1",
     ]
   }
 }
