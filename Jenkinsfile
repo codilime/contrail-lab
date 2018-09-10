@@ -20,6 +20,7 @@ pipeline {
         file(description: 'sshprivkey', name: 'sshprivkey')
         file(description: 'instances_yaml', name: 'instances_yaml')
         choice(choices: ['openstack', 'kubernetes'], description: '', name: 'orchestrator')
+        string(defaultValue: "m2.large", description: '', name: 'flavor')
         // flavor parameter is definied in jenkins configure. If you want to use it
         // you need to add Extensible choice parameter named flavor in configure.
     }
@@ -49,7 +50,7 @@ pipeline {
                         sh "chmod 777 provision/prepare_template"
                         // set +x and set -x are workaround to not print user password in jenkins output log
                         ansiColor('xterm') {
-                            sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"${params.CreateDestroy}\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${flavor}\" && set -x"
+                            sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"${params.CreateDestroy}\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
                         }
                     } else {
                         // set +x and set -x are workaround to not print user password in jenkins output log
@@ -63,9 +64,11 @@ pipeline {
     }
     post {
         always {
-            if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
-                sh "rm -rf ${params.Login}-key.pub"
-                sh "rm -rf ${params.Login}-key.priv"
+            script {
+                if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
+                    sh "rm -rf ${params.Login}-key.pub"
+                    sh "rm -rf ${params.Login}-key.priv"
+                }
             }
         }
     }
