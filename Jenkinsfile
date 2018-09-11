@@ -21,22 +21,20 @@ pipeline {
         file(description: 'instances_yaml', name: 'instances_yaml')
         choice(choices: ['openstack', 'kubernetes'], description: '', name: 'orchestrator')
         string(defaultValue: "m2.large", description: '', name: 'flavor')
-        // flavor parameter is definied in jenkins configure. If you want to use it
-        // you need to add Extensible choice parameter named flavor in configure.
     }
     stages {
         stage('Main') {
             steps {
-                deleteDir()
-
-                // Use the same repo and branch as was used to checkout Jenkinsfile:
-                retry(3) {
-                    checkout scm
-                }
-                stash name: "Provision", includes: "provision/**"
                 script {
-                    unstash "Provision"
                     if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
+                        deleteDir()
+
+                        // Use the same repo and branch as was used to checkout Jenkinsfile:
+                        retry(3) {
+                            checkout scm
+                        }
+                        stash name: "Provision", includes: "provision/**"
+                        unstash "Provision"
                         def sshPubKeyFile = unstashParam "sshpubkey"
                         def sshPrivKeyFile = unstashParam "sshprivkey"
                         def instancesYaml = unstashParam "instances_yaml"
@@ -55,7 +53,7 @@ pipeline {
                     } else {
                         // set +x and set -x are workaround to not print user password in jenkins output log
                         ansiColor('xterm') {
-                            sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"${params.CreateDestroy}\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && terraform show && set -x"
+                            sh "set +x && cd provision && ./createcontrail \"${params.CreateDestroy}\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
                         }
                     }
                 }
