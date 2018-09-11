@@ -26,34 +26,43 @@ pipeline {
         stage('Main') {
             steps {
                 script {
-                    if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
+                    sh "echo ${params.CreateDestroy}"
+                    if ("${params.CreateDestroy}" == "--create") {
                         deleteDir()
-
                         // Use the same repo and branch as was used to checkout Jenkinsfile:
                         retry(3) {
                             checkout scm
                         }
                         stash name: "Provision", includes: "provision/**"
                         unstash "Provision"
-                        def sshPubKeyFile = unstashParam "sshpubkey"
-                        def sshPrivKeyFile = unstashParam "sshprivkey"
-                        def instancesYaml = unstashParam "instances_yaml"
-                        sh "mv ${sshPubKeyFile} ${params.Login}-key.pub"
-                        sh "mv ${sshPrivKeyFile} ${params.Login}-key.priv"
-                        sh "rm -rf ${sshPubKeyFile}"
-                        sh "rm -rf ${sshPrivKeyFile}"
-                        sh "mv ${instancesYaml} provision/template.yaml"
-                        sh "chmod 600 ${params.Login}-key.pub"
-                        sh "chmod 600 ${params.Login}-key.priv"
-                        sh "chmod 777 provision/prepare_template"
-                        // set +x and set -x are workaround to not print user password in jenkins output log
-                        ansiColor('xterm') {
-                            sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"${params.CreateDestroy}\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+
+                        if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
+                            // This is a workaround!
+                            // https://bitbucket.org/janvrany/jenkins-27413-workaround-library
+                            def sshPubKeyFile = unstashParam "sshpubkey"
+                            def sshPrivKeyFile = unstashParam "sshprivkey"
+                            def instancesYaml = unstashParam "instances_yaml"
+                            sh "mv ${sshPubKeyFile} ${params.Login}-key.pub"
+                            sh "mv ${sshPrivKeyFile} ${params.Login}-key.priv"
+                            sh "rm -rf ${sshPubKeyFile}"
+                            sh "rm -rf ${sshPrivKeyFile}"
+                            sh "mv ${instancesYaml} provision/template.yaml"
+                            sh "chmod 600 ${params.Login}-key.pub"
+                            sh "chmod 600 ${params.Login}-key.priv"
+                            sh "chmod 777 provision/prepare_template"
+                            // set +x and set -x are workaround to not print user password in jenkins output log
+                            ansiColor('xterm') {
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+                            }
+                        } else {
+                            ansiColor('xterm') {
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+                            }
                         }
                     } else {
                         // set +x and set -x are workaround to not print user password in jenkins output log
                         ansiColor('xterm') {
-                            sh "set +x && cd provision && ./createcontrail \"${params.CreateDestroy}\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
+                            sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
                         }
                     }
                 }
@@ -63,9 +72,18 @@ pipeline {
     post {
         always {
             script {
-                if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
+                if ("${sshpubkey}" != "" && "${sshprivkey}" != "" && "${params.CreateDestroy}" == "--create") {
                     sh "rm -rf ${params.Login}-key.pub"
                     sh "rm -rf ${params.Login}-key.priv"
+                }
+            }
+        }
+        failure {
+            script {
+                if ("${params.CreateDestroy}" == "--create") {
+                    ansiColor('xterm') {
+                        sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
+                    }
                 }
             }
         }
