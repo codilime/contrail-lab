@@ -3,6 +3,9 @@ import hudson.model.ParametersAction
 import hudson.model.FileParameterValue
 import hudson.model.Executor
 
+// This code is a workaround for file parameters in pipeline
+// https://bitbucket.org/janvrany/jenkins-27413-workaround-library
+
 def call(String name, String fname = null) {
     def paramsAction = currentBuild.rawBuild.getAction(ParametersAction.class);
     if (paramsAction != null) {

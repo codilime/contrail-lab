@@ -26,7 +26,6 @@ pipeline {
         stage('Main') {
             steps {
                 script {
-                    sh "echo ${params.CreateDestroy}"
                     if ("${params.CreateDestroy}" == "--create") {
                         deleteDir()
                         // Use the same repo and branch as was used to checkout Jenkinsfile:
