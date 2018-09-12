@@ -46,3 +46,8 @@ variable "ssh_key_file" {
 variable "ssh_private_key" {
   default = "./id_rsa"
 }
+
+variable "flavor" {
+  default = "@FLAVOR"
+}
+
