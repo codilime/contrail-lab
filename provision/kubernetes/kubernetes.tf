@@ -172,7 +172,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo shutdown -r 1",
     ]
   }
-  
+
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
