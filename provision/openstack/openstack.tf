@@ -186,6 +186,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "cd ${local.contrail_path}",
       "ansible-playbook -e contrail_type=${var.contrailType} -e contrail_path=${local.contrail_path} playbooks/contrail-go/deploy-contrail.yaml",
+      "export PATH=\"$PATH:$HOME/go/bin:/usr/go/bin\"",
     ]
   }
 }
