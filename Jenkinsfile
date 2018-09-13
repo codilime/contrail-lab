@@ -1,122 +1,87 @@
 #!groovy
-library "atomSharedLibraries@${env.BRANCH_NAME}"
-
-@Library("atomSharedLibraries@master")
-import org.FileManager
-import org.KeyManager
-import org.UserDirectory
-import org.MachineConfiguration
-import org.TerraformManager
-
-def warningEcho(message) {
-    echo "\033[1;33m${message}\033[0m"
-}
-
-def resolveInstancesYamlFile(String instanceParameter, String workspace) {
-    if (instanceParameter != "")
-        return "${workspace}/${instanceParameter}"
-    warningEcho("Didn't get instances yaml file. Using default file.")
-    return "provision/template.yaml"
-}
-
-def resolveKeyFile(String keyParameter, String workspace) {
-    if (keyParameter != "")
-        return "${workspace}/${keyParameter}"
-    return ""
-}
+library "atomSharedLibraries@master"
 
 pipeline {
     agent any
-
-    options {
-        ansiColor('xterm')
-    }
-
     parameters {
-        string(defaultValue: "", description: "", name: "Login")
-        password(defaultValue: "", description: "", name: "Password")
-        string(defaultValue: "default", description: "", name: "MachineName")
-        choice(choices: ["--create", "--destroy"], description: "", name: "CreateDestroy")
-        string(description: "", name: "branch", defaultValue: "${branch}")
-        string(description: "", name: "routerID", defaultValue: "${routerID}")
-        string(description: "", name: "routerName", defaultValue: "${routerName}")
-        string(description: "", name: "routerIP", defaultValue: "${routerIP}")
-        string(description: "", name: "networkID", defaultValue: "${networkID}")
-        string(description: "", name: "networkName", defaultValue: "${networkName}")
-        string(description: "", name: "projectName", defaultValue: "${projectName}")
-        string(description: "", name: "ProjectID", defaultValue: "${ProjectID}")
-        string(description: "", name: "domainName", defaultValue: "${domainName}")
-        file(description: "sshpubkey", name: "sshpubkey")
-        file(description: "sshprivkey", name: "sshprivkey")
-        file(description: "instances_yaml", name: "instances_yaml")
-        choice(choices: ["kubernetes", "openstack"], description: "", name: "orchestrator")
-        choice(choices: ["vnc_api", "contrail-go"], description: "", name: "contrail_type")
-        string(description: "", name: "flavor", defaultValue: "${flavor}")
-        string(defaultValue: "master", description: "", name: "patchset_ref")
+        string(defaultValue: "", description: '', name: 'Login')
+        password(defaultValue: "", description: '', name: 'Password')
+        choice(choices: ['--create', '--destroy'], description: '', name: 'CreateDestroy')
+        string(defaultValue: "", description: '', name: 'branch')
+        string(defaultValue: "d0acbd75-b465-4085-860f-decd07b640e0", description: '', name: 'routerID')
+        string(defaultValue: "atom", description: '', name: 'routerName')
+        string(defaultValue: "192.168.0.1", description: '', name: 'routerIP')
+        string(defaultValue: "b743fcf9-e043-4841-8c18-12ce1a7bc86d", description: '', name: 'networkID')
+        string(defaultValue: "atom", description: '', name: 'networkName')
+        string(defaultValue: "JUN-Atom", description: '', name: 'projectName')
+        string(defaultValue: "40daa97eca214871b93039e6e28c8270", description: '', name: 'ProjectID')
+        string(defaultValue: "Users", description: '', name: 'domainName')
+        file(description: 'sshpubkey', name: 'sshpubkey')
+        file(description: 'sshprivkey', name: 'sshprivkey')
+        file(description: 'instances_yaml', name: 'instances_yaml')
+        choice(choices: ['openstack', 'kubernetes'], description: '', name: 'orchestrator')
+        string(defaultValue: "m2.large", description: '', name: 'flavor')
     }
-
     stages {
         stage('Main') {
             steps {
                 script {
-                    deleteDir()
-                    // Use the same repo and branch as was used to checkout Jenkinsfile:
-                    retry(3) {
-                        checkout scm
-                    }
-                    stash name: "Provision", includes: "provision/**"
-                    unstash "Provision"
-
-                    FileManager fm = ["${WORKSPACE}"]
-
-                    String privKey = resolveKeyFile(unstashParam("sshprivkey"), fm.GetWorkspace())
-                    String pubKey = resolveKeyFile(unstashParam("sshpubkey"), fm.GetWorkspace())
-                    KeyManager km = [privKey, pubKey, fm]
-
-                    UserDirectory userDir = ["../contrail_state_files", params.Login, params.MachineName, fm, fm.GetWorkspace()]
-                    userDir.CreateUserDirectory()
-
-                    String instancesFile = resolveInstancesYamlFile(unstashParam("instances_yaml"), fm.GetWorkspace())
-                    TerraformManager tf = ["provision/${params.orchestrator}/variables.tf", "provision/${params.orchestrator}/${params.orchestrator}.tf", "provision/daemon.json", instancesFile, "provision/prepare_template", fm]
-
-                    MachineConfiguration conf = []
-                    conf.UserName = params.Login
-                    conf.Password = params.Password
-                    conf.ProjectID = params.ProjectID
-                    conf.DomainName = params.domainName
-                    conf.ProjectName = params.projectName
-                    conf.NetworkName = params.networkName
-                    conf.Branch = params.branch
-                    conf.RouterIP = params.routerIP
-                    conf.Flavor = params.flavor
-                    conf.MachineName = params.MachineName
-                    conf.ContrailType = params.contrail_type
-                    conf.PatchsetRef = params.patchset_ref
-
-                    // It's a workaround to pass those variables to post script
-                    km_post = km
-                    ud_post = userDir
-                    tf_post  = tf
-                    conf_post = conf
-
                     if ("${params.CreateDestroy}" == "--create") {
-                        if(!userDir.IsNewMachine()){
-                            error("It seems that there are actually resources with that name.\nPlease destroy them first or use if you just forgot about them. :)")
+                        deleteDir()
+                        // Use the same repo and branch as was used to checkout Jenkinsfile:
+                        retry(3) {
+                            checkout scm
+                        }
+                        stash name: "Provision", includes: "provision/**"
+                        unstash "Provision"
+
+                        if ("${sshpubkey}" != "" && "${sshprivkey}" != "") {
+                            // This is a workaround!
+                            // https://bitbucket.org/janvrany/jenkins-27413-workaround-library
+                            def sshPubKeyFile = unstashParam "sshpubkey"
+                            def sshPrivKeyFile = unstashParam "sshprivkey"
+                            def instancesYaml = unstashParam "instances_yaml"
+                            sh "mv ${sshPubKeyFile} ${params.Login}-key.pub"
+                            sh "mv ${sshPrivKeyFile} ${params.Login}-key.priv"
+                            sh "rm -rf ${sshPubKeyFile}"
+                            sh "rm -rf ${sshPrivKeyFile}"
+                            sh "mv ${instancesYaml} provision/template.yaml"
+                            sh "chmod 600 ${params.Login}-key.pub"
+                            sh "chmod 600 ${params.Login}-key.priv"
+                            sh "chmod 777 provision/prepare_template"
+                            // set +x and set -x are workaround to not print user password in jenkins output log
+                            ansiColor('xterm') {
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+                            }
                         } else {
-                            tf.CreateMachine(userDir, km, conf, steps)
+                            ansiColor('xterm') {
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+                            }
                         }
                     } else {
-                        tf.DestroyMachine(userDir, km, conf, steps)
+                        // set +x and set -x are workaround to not print user password in jenkins output log
+                        ansiColor('xterm') {
+                            sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
+                        }
                     }
                 }
             }
-            post {
-                success {
-                    script {
-                        if ("${params.CreateDestroy}" == "--create") {
-                            keys = km_post
-                            keys.DeleteKeys()
-                        }
+        }
+    }
+    post {
+        always {
+            script {
+                if ("${sshpubkey}" != "" && "${sshprivkey}" != "" && "${params.CreateDestroy}" == "--create") {
+                    sh "rm -rf ${params.Login}-key.pub"
+                    sh "rm -rf ${params.Login}-key.priv"
+                }
+            }
+        }
+        failure {
+            script {
+                if ("${params.CreateDestroy}" == "--create") {
+                    ansiColor('xterm') {
+                        sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
                     }
                 }
             }
