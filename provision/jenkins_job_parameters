@@ -65,3 +65,9 @@ Name: orchestrator
 Choices: 
 openstack
 kubernetes
+
+Choice parameter
+Name: contrailType
+Choices: 
+vnc_api
+atom_api
