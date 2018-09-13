@@ -189,8 +189,8 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "cd go/src/github.com/Juniper/contrail",
-      "ansible-playbook -e contrail_type=${var.contrailType} contrail_path=playbooks/contrail-go/deploy-contrail.yaml",
+      "cd ${contrail.path}",
+      "ansible-playbook -e contrail_type=${var.contrailType} contrail_path=${contrail.path} playbooks/contrail-go/deploy-contrail.yaml",
       "sudo shutdown -r 1",
     ]
   }
