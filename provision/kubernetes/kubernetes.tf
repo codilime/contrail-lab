@@ -65,8 +65,8 @@ resource "openstack_networking_floatingip_v2" "floatip_1" {
   pool = "public"
 }
 
-resource "contrail" {
-  path = "$HOME/go/src/github.com/Juniper/contrail"
+locals {
+  contrail_path = "$HOME/go/src/github.com/Juniper/contrail"
 }
 
 resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
@@ -87,7 +87,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "sudo yum -y install kernel-devel kernel-headers ansible git",
       "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
-      "git clone https://github.com/baltekgajda/contrail ${contrail.path}",
+      "git clone https://github.com/baltekgajda/contrail ${local.contrail_path}",
     ]
   }
 
@@ -189,8 +189,8 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "cd go/src/github.com/Juniper/contrail",
-      "ansible-playbook -e contrail_type=${var.contrailType} contrail_path=playbooks/contrail-go/deploy-contrail.yaml",
+      "cd ${local.contrail_path}",
+      "ansible-playbook -e contrail_type=${var.contrailType} contrail_path=${local.contrail_path} playbooks/contrail-go/deploy-contrail.yaml",
       "sudo shutdown -r 1",
     ]
   }

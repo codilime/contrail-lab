@@ -7,17 +7,17 @@ Password Parameter
 Name:  Password
 
 Choice Parameter
-Name: CreateDestroy 
-Choices:  
+Name: CreateDestroy
+Choices:
 --create
 --destroy
 
-String Parameter 
+String Parameter
 Name: branch
 
 String Parameter
 Name: routerID
-Default Value: #Provide routerID 
+Default Value: #Provide routerID
 
 String Parameter
 Name: routerName
@@ -62,12 +62,6 @@ Description: instances_yaml
 
 Choice parameter
 Name: orchestrator
-Choices: 
+Choices:
 openstack
 kubernetes
-
-Choice parameter
-Name: contrailType
-Choices: 
-vnc_api
-atom_api
