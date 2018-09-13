@@ -20,6 +20,7 @@ pipeline {
         file(description: 'sshprivkey', name: 'sshprivkey')
         file(description: 'instances_yaml', name: 'instances_yaml')
         choice(choices: ['openstack', 'kubernetes'], description: '', name: 'orchestrator')
+        choice(choices: ['vnc_api', 'atom_api'], description: '', name: 'contrailType')
         string(defaultValue: "m2.large", description: '', name: 'flavor')
     }
     stages {
@@ -51,11 +52,11 @@ pipeline {
                             sh "chmod 777 provision/prepare_template"
                             // set +x and set -x are workaround to not print user password in jenkins output log
                             ansiColor('xterm') {
-                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" \"${params.contrailType}\" && set -x"
                             }
                         } else {
                             ansiColor('xterm') {
-                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" \"${params.contrailType}\" && set -x"
                             }
                         }
                     } else {

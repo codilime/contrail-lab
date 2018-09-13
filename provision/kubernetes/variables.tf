@@ -51,3 +51,7 @@ variable "flavor" {
   default = "@FLAVOR"
 }
 
+variable "contrailType" {
+  default = "vnc_api"
+}
+

@@ -50,3 +50,7 @@ variable "ssh_private_key" {
 variable "flavor" {
   default = "@FLAVOR"
 }
+
+variable "contrailType" {
+  default = "vnc_api"
+}

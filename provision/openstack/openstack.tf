@@ -78,6 +78,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "sudo yum -y install kernel-devel kernel-headers ansible git",
       "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
+      "git clone https://github.com/baltekgajda/contrail $HOME/go/src/github.com/Juniper/contrail",
     ]
   }
 
@@ -163,6 +164,24 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo ansible-playbook -i inventory playbooks/install_openstack.yml -v",
       "sudo ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
+      "sudo shutdown -r 1",
+    ]
+  }
+  
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
+      "cd go/src/github.com/Juniper/contrail",
+      "ansible-playbook -e contrail_type=${var.contrailType} playbooks/contrail-go/deploy-contrail.yaml",
       "sudo shutdown -r 1",
     ]
   }
