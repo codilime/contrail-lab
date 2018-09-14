@@ -1,11 +1,12 @@
-#!groovy
+#!/usr/bin/env groovy
 library "atomSharedLibraries@master"
 
 pipeline {
+
     agent any
     parameters {
-        string(defaultValue: "", description: '', name: 'Login')
-        password(defaultValue: "", description: '', name: 'Password')
+        string(defaultValue: '', description: '', name: 'Login')
+        password(defaultValue: '', description: '', name: 'Password')
         choice(choices: ['--create', '--destroy'], description: '', name: 'CreateDestroy')
         string(description: '', name: 'branch', defaultValue: "${branch}")
         string(description: '', name: 'routerID', defaultValue: "${routerID}")
@@ -22,6 +23,12 @@ pipeline {
         choice(choices: ['kubernetes', 'openstack'], description: '', name: 'orchestrator')
         string(description: '', name: 'flavor', defaultValue: "${flavor}")
     }
+
+    options {
+        ansiColor('xterm')
+        timestamps()
+    }
+
     stages {
         stage('Main') {
             steps {
@@ -50,24 +57,19 @@ pipeline {
                             sh "chmod 600 ${params.Login}-key.priv"
                             sh "chmod 777 provision/prepare_template"
                             // set +x and set -x are workaround to not print user password in jenkins output log
-                            ansiColor('xterm') {
-                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
-                            }
+                            sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
                         } else {
-                            ansiColor('xterm') {
-                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
-                            }
+                            sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" && set -x"
                         }
                     } else {
                         // set +x and set -x are workaround to not print user password in jenkins output log
-                        ansiColor('xterm') {
-                            sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
-                        }
+                        sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
                     }
                 }
             }
         }
     }
+
     post {
         always {
             script {
@@ -80,9 +82,7 @@ pipeline {
         failure {
             script {
                 if ("${params.CreateDestroy}" == "--create") {
-                    ansiColor('xterm') {
-                        sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
-                    }
+                    sh "set +x && cd provision && ./createcontrail \"--destroy\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.orchestrator}\" && set -x"
                 }
             }
         }
