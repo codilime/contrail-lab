@@ -20,7 +20,7 @@ pipeline {
         file(description: 'sshprivkey', name: 'sshprivkey')
         file(description: 'instances_yaml', name: 'instances_yaml')
         choice(choices: ['openstack', 'kubernetes'], description: '', name: 'orchestrator')
-        choice(choices: ['vnc_api', 'atom_api'], description: '', name: 'contrailType')
+        choice(choices: ['vnc_api', 'contrail-go'], description: '', name: 'contrailType')
         string(defaultValue: "m2.large", description: '', name: 'flavor')
     }
     stages {
