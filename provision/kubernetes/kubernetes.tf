@@ -67,6 +67,7 @@ resource "openstack_networking_floatingip_v2" "floatip_1" {
 
 locals {
   contrail_path = "$HOME/go/src/github.com/Juniper/contrail"
+  checkout_patchset = "${var.patchsetRef != "" ? "git fetch https://review.opencontrail.org/Juniper/contrail refs/changes/${var.patch_ref} && git checkout FETCH_HEAD" : "echo \"default_branch: master\""}"
 }
 
 resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
@@ -88,6 +89,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo yum -y install kernel-devel kernel-headers ansible git",
       "sudo git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
       "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
+      "${local.checkout_patchset}",
     ]
   }
 

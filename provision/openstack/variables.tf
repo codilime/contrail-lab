@@ -54,3 +54,7 @@ variable "flavor" {
 variable "contrailType" {
   default = "vnc_api"
 }
+
+variable "patchsetRef" {
+  default = ""
+}

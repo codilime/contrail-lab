@@ -13,10 +13,10 @@ echo "-d|--destroy Login Password ProjectID domainName ProjectName Orchestrator	
 if [ -z "${12}" ]
   then
 terraform apply -auto-approve -state-out="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6" \
--var='network_name='"$7" -var='ssh_key_file='"$8" -var='ssh_private_key='"$9" -var='routerip='"${10}" -var='flavor='"${13}" -var='contrailType='"${14}" ./"${11}"/
+-var='network_name='"$7" -var='ssh_key_file='"$8" -var='ssh_private_key='"$9" -var='routerip='"${10}" -var='flavor='"${13}" -var='contrailType='"${14}" -var='patchsetRef='"${15}" ./"${11}"/
 else
 terraform apply -auto-approve -state-out="$2" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$4" -var='domain_name='"$5" -var='project_name='"$6" \
--var='network_name='"$7" -var='ssh_key_file='"$8" -var='ssh_private_key='"$9" -var='routerip='"${10}" -var='branch='"${12}" -var='flavor='"${13}" -var='contrailType='"${14}" ./"${11}"/
+-var='network_name='"$7" -var='ssh_key_file='"$8" -var='ssh_private_key='"$9" -var='routerip='"${10}" -var='branch='"${12}" -var='flavor='"${13}" -var='contrailType='"${14}" -var='patchsetRef='"${15}" ./"${11}"/
 fi
 ;;
     --destroy|-d)
