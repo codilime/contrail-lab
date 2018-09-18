@@ -23,7 +23,6 @@ pipeline {
         choice(choices: ['vnc_api', 'contrail-go'], description: '', name: 'contrailType')
         string(description: '', name: 'flavor', defaultValue: "${flavor}")
         string(defaultValue: "Provide patchsetRef", description: '', name: 'patchsetRef')
-        string(defaultValue: "Provide patchsetRef", description: '', name: 'patchsetRef')
     }
     stages {
         stage('Main') {
