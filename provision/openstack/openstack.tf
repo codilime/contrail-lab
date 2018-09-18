@@ -62,7 +62,7 @@ resource "openstack_networking_floatingip_v2" "floatip_1" {
 
 locals {
   contrail_path = "$HOME/go/src/github.com/Juniper/contrail"
-  checkout_patchset = "${var.patchsetRef != "" ? "git fetch https://review.opencontrail.org/Juniper/contrail refs/changes/${var.patch_ref} && git checkout FETCH_HEAD" : "echo \"default_branch: master\""}"
+  checkout_patchset = "${var.patchsetRef != "" ? "git fetch https://review.opencontrail.org/Juniper/contrail ${var.patch_ref} && git checkout FETCH_HEAD" : "echo \"default_branch: master\""}"
 }
 
 resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
