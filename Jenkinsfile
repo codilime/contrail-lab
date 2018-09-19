@@ -20,9 +20,9 @@ pipeline {
         file(description: 'sshprivkey', name: 'sshprivkey')
         file(description: 'instances_yaml', name: 'instances_yaml')
         choice(choices: ['kubernetes', 'openstack'], description: '', name: 'orchestrator')
-        choice(choices: ['vnc_api', 'contrail-go'], description: '', name: 'contrailType')
+        choice(choices: ['vnc_api', 'contrail-go'], description: '', name: 'contrail_type')
         string(description: '', name: 'flavor', defaultValue: "${flavor}")
-        string(defaultValue: "Provide patchsetRef", description: '', name: 'patchsetRef')
+        string(defaultValue: "", description: '', name: 'patchsetRef')
     }
     stages {
         stage('Main') {
@@ -53,11 +53,11 @@ pipeline {
                             sh "chmod 777 provision/prepare_template"
                             // set +x and set -x are workaround to not print user password in jenkins output log
                             ansiColor('xterm') {
-                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" \"${params.contrailType}\" \"${params.patchsetRef}\" && set -x"
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"../${params.Login}-key.pub\" \"../${params.Login}-key.priv\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" \"${params.contrail_type}\" \"${params.patchsetRef}\" && set -x"
                             }
                         } else {
                             ansiColor('xterm') {
-                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" \"${params.contrailType}\" \"${params.patchsetRef}\" && set -x"
+                                sh "set +x && cd provision && terraform init -from-module ${params.orchestrator} && ./createcontrail \"--create\" \"${params.Login}\" \"${params.Password}\" \"${params.ProjectID}\" \"${params.domainName}\" \"${params.projectName}\" \"${params.networkName}\" \"./id_rsa.pub\" \"./id_rsa\" \"${params.routerIP}\" \"${params.orchestrator}\" \"${params.branch}\" \"${params.flavor}\" \"${params.contrail_type}\" \"${params.patchsetRef}\" && set -x"
                             }
                         }
                     } else {

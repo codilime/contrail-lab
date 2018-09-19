@@ -51,7 +51,7 @@ variable "flavor" {
   default = "@FLAVOR"
 }
 
-variable "contrailType" {
+variable "contrail_type" {
   default = "vnc_api"
 }
 
