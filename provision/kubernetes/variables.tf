@@ -55,8 +55,8 @@ variable "contrail_type" {
   default = "vnc_api"
 }
 
-variable "patchsetRef" {
-  default = ""
+variable "patchset_ref" {
+  default = "master"
 }
 
 
