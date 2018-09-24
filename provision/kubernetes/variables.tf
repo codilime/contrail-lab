@@ -51,3 +51,12 @@ variable "flavor" {
   default = "@FLAVOR"
 }
 
+variable "contrail_type" {
+  default = "vnc_api"
+}
+
+variable "patchset_ref" {
+  default = "master"
+}
+
+
