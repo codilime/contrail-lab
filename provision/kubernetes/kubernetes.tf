@@ -176,9 +176,24 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_k8s.yml",
       "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_contrail.yml",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
+      "sudo shutdown -r 1",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
       "cd ${local.contrail_path}",
       "ansible-playbook -e contrail_type=${var.contrail_type} -e contrail_path=${local.contrail_path} playbooks/contrail-go/deploy.yaml",
-      "sudo shutdown -r 1",
     ]
   }
 }
