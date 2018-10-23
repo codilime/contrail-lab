@@ -58,3 +58,11 @@ variable "contrail_type" {
 variable "patchset_ref" {
   default = "master"
 }
+
+variable "machine_name" {
+  default = "@MACHINE_NAME"
+}
+
+variable "main_directory_name" {
+  default = "@MAIN_DIRECTORY_NAME"
+}

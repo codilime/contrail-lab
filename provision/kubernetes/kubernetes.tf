@@ -8,13 +8,13 @@ provider "openstack" {
 }
 
 resource "openstack_compute_keypair_v2" "KeyPair" {
-  name       = "${replace(var.user_name,".","-")}-KeyPair"
+  name       = "${replace(var.user_name,".","-")}-${var.machine_name}-KeyPair"
   public_key = "${file("${var.ssh_key_file}")}"
 
 }
 
 resource "openstack_compute_secgroup_v2" "contrail_security_group" {
-  name        = "${var.user_name}-contrail_security_group"
+  name        = "${var.user_name}-${var.machine_name}-contrail_security_group"
   description = "Security Group for contrail_net"
 
   rule {
@@ -40,12 +40,12 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
 }
 
 resource "openstack_blockstorage_volume_v2" "volume" {
-  name = "${var.user_name}-volume"
+  name = "${var.user_name}-${var.machine_name}-volume"
   size = 100
 }
 
 resource "openstack_compute_instance_v2" "basic" {
-  name            = "${var.user_name}"
+  name            = "${var.user_name}-${var.machine_name}"
   image_id        = "703f5673-564d-40cf-b4f1-0134687809cc"
   flavor_name     = "${var.flavor}"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
@@ -95,11 +95,11 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
   }
 
   provisioner "local-exec" {
-    command = "./prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip}"
+    command = "../../${var.main_directory_name}/${var.user_name}/${var.machine_name}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip} ${var.main_directory_name} ${var.user_name} ${var.machine_name}"
   }
 
   provisioner "file" {
-    source      = "daemon.json"
+    source      = "../../${var.main_directory_name}/${var.user_name}/${var.machine_name}/daemon.json"
     destination = "/tmp/daemon.json"
 
     connection {
@@ -125,7 +125,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
   }
 
   provisioner "file" {
-    source      = "instances.yaml"
+    source      = "../../${var.main_directory_name}/${var.user_name}/${var.machine_name}/instances.yaml"
     destination = "/tmp/instances.yaml"
 
     connection {
