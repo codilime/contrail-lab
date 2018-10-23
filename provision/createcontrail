@@ -1,0 +1,25 @@
+#!/bin/bash
+case "$1" in
+	"")
+echo "Script usage:"
+echo "-c|--create Login Password MachineName ProjectID DoaminName ProjectName NetworkName PublicKey PrivateKey RouterIP Orchestrator Branch flavor terraformStateFileName mainDirectoryName contrailType patchsetRef - creating new instace "
+echo "Orchestrator could be set to openstack or kubernetes "
+echo "Branch parameter is optional"
+echo "-d|--destroy Login Password MachineName ProjectID domainName ProjectName Orchestrator	terraformStateFileName mainDirectoryName - destroying instance"
+;;
+    --create|-c)
+
+
+if [ -z "${13}" ]
+  then
+terraform apply -auto-approve -state-out="../../contrail_state_files/$2/$4/${15}" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$5" -var='domain_name='"$6" -var='project_name='"$7" -var='network_name='"$8" -var='ssh_key_file='"$9" -var='ssh_private_key='"${10}" -var='routerip='"${11}" -var='flavor='"${14}" -var='machine_name='"$4" -var='main_directory_name='"${16}" -var='contrail_type='"${17}" -var='patchset_ref='"${18}" "../../contrail_state_files/$2/$4"
+else
+terraform apply -auto-approve -state-out="../../contrail_state_files/$2/$4/${15}" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$5" -var='domain_name='"$6" -var='project_name='"$7" -var='network_name='"$8" -var='ssh_key_file='"$9" -var='ssh_private_key='"${10}" -var='routerip='"${11}" -var='branch='"${13}" -var='flavor='"${14}" -var='machine_name='"$4" -var='main_directory_name='"${16}" -var='contrail_type='"${17}" -var='patchset_ref='"${18}" "../../contrail_state_files/$2/$4"
+fi
+;;
+    --destroy|-d)
+terraform destroy -auto-approve -state="../../contrail_state_files/$2/$4/$9" -var='user_name='"$2" -var='password='"$3" -var='project_id='"$5" -var='domain_name='"$6" -var='project_name='"$7" -var='machine_name='"$4" -var='main_directory_name='"${10}" "../../contrail_state_files/$2/$4"
+;;
+    *)
+;;
+esac

@@ -1,3 +1,4 @@
 #!/bin/bash
-sed  -i "s|@localip|$1|g" "$3/instances.yaml"
-sed  -i "s|@routerip|$2|g" "$3/instances.yaml"
+cp ../../$3/$4/$5/template.yaml ../../$3/$4/$5/instances.yaml
+sed  -i "s|@localip|$1|g" "../../$3/$4/$5/instances.yaml"
+sed  -i "s|@routerip|$2|g" "../../$3/$4/$5/instances.yaml"
