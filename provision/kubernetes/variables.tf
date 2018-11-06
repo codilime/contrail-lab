@@ -6,20 +6,12 @@ variable "password" {
   default = "@PASSWORD"
 }
 
-variable "router_name" {
-  default = "@ROUTER_NAME"
-}
-
 variable "project_id" {
   default = "@PROJECTID"
 }
 
 variable "network_name" {
   default = "@NETWROK_NAME"
-}
-
-variable "network_id" {
-  default = "@NETWORK_ID"
 }
 
 variable "domain_name" {
@@ -65,4 +57,8 @@ variable "machine_name" {
 
 variable "main_directory_name" {
   default = "@MAIN_DIRECTORY_NAME"
+}
+
+variable "path" {
+  default = "@PATH"
 }

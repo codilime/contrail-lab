@@ -95,11 +95,11 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
   }
 
   provisioner "local-exec" {
-    command = "../../${var.main_directory_name}/${var.user_name}/${var.machine_name}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip} ${var.main_directory_name} ${var.user_name} ${var.machine_name}"
+    command = "${var.path}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip} ${var.path}"
   }
 
   provisioner "file" {
-    source      = "../../${var.main_directory_name}/${var.user_name}/${var.machine_name}/daemon.json"
+    source      = "${var.path}/daemon.json"
     destination = "/tmp/daemon.json"
 
     connection {
@@ -125,7 +125,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
   }
 
   provisioner "file" {
-    source      = "../../${var.main_directory_name}/${var.user_name}/${var.machine_name}/instances.yaml"
+    source      = "${var.path}/instances.yaml"
     destination = "/tmp/instances.yaml"
 
     connection {
