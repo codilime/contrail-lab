@@ -19,61 +19,65 @@ class FileManager {
         this.workspacePath = workspacePath
     }
 
-    public void copy(String from, String to) {
-        Path source = Paths.get(ensureNonRelativePath(from))
-        Path target = Paths.get(ensureNonRelativePath(to))
+    public void Copy(String from, String to) {
+        Path source = Paths.get(EnsureNonRelativePath(from))
+        Path target = Paths.get(EnsureNonRelativePath(to))
         Files.copy(source, target)
     }
 
-    public void copy(String name, String from, String to) {
-        this.copy(from + "/" + name, to + "/" + name)
-    }
-
-    public void copy(String oldName, String newName, String from, String to) {
-        this.copy(from + "/" + oldName, to + "/" + newName)
-    }
-
-    public void move(String from, String to) {
-        Path source = Paths.get(ensureNonRelativePath(from))
-        Path target = Paths.get(ensureNonRelativePath(to))
+    public void Move(String from, String to) {
+        Path source = Paths.get(EnsureNonRelativePath(from))
+        Path target = Paths.get(EnsureNonRelativePath(to))
         Files.move(source, target)
     }
 
-    public void move(String name, String from, String to) {
-        this.move(from + "/" + name, to + "/" + name)
-    }
-
-    public void move(String oldName, String newName, String from, String to) {
-        this.move(from + "/" + oldName, to + "/" + newName)
-    }
-
-    public void newDir(String path) {
+    public void NewDir(String path) {
         try {
-            Files.createDirectory(Paths.get(ensureNonRelativePath(path)));
+            Files.createDirectory(Paths.get(EnsureNonRelativePath(path)));
         } catch(FileAlreadyExistsException e){
-            // The directory exist. Skip this part
+            // The directory exists. Skip this part
         }
     }
 
-    public void newDir(String name, String path) {
-        this.newDir(path + "/" + name)
+    public void NewFile(String path) {
+        try {
+            Files.createFile(Paths.get(EnsureNonRelativePath(path)));
+        } catch(FileAlreadyExistsException e){
+            // The file exists. Skip this part
+        }
     }
 
-    public void del(String path) {
-        Path rootPath = Paths.get(ensureNonRelativePath(path))
+    public void NewDir(String name, String path) {
+        this.NewDir(path + "/" + name)
+    }
+
+    public void NewFile(String name, String path) {
+        this.NewFile(path + "/" + name)
+    }
+
+    public void Del(String path) {
+        Path rootPath = Paths.get(EnsureNonRelativePath(path))
         Files.walk(rootPath).sorted(Comparator.reverseOrder()).forEach(Files.&delete)
     }
 
-    public void del(String name, String path) {
-        this.del(path + "/" + name)
-    }
-
-    public boolean exists(String path) {
-        Path rootPath = Paths.get(ensureNonRelativePath(path))
+    public boolean Exists(String path) {
+        Path rootPath = Paths.get(EnsureNonRelativePath(path))
         return Files.exists(rootPath)
     }
 
-    private String ensureNonRelativePath(String path) {
+    public String GetFileName(String path) {
+        return Paths.get(path).getFileName().toString()
+    }
+
+    public String GetFileLocation(String path) {
+        return Paths.get(path).getParent().toString()
+    }
+
+    public String GetWorkspace() {
+        return workspacePath
+    }
+
+    private String EnsureNonRelativePath(String path) {
         if (path[0] != '/') {
             return this.workspacePath + "/" + path
         }
