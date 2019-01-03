@@ -20,6 +20,9 @@ def call(String name, String fname = null) {
                 if (env['WORKSPACE'] == null) {
                     error "unstashParam: no workspace in current context"
                 }
+                if (param.getOriginalFileName() == "") {
+                    return "";
+                }
                 nodeName = env['NODE_NAME'] == 'master' ? '(master)' : env['NODE_NAME']
                 workspace = new FilePath(Jenkins.getInstance().getComputer(nodeName).getChannel(), env['WORKSPACE'])
                 filename = fname == null ? param.getOriginalFileName() : fname
