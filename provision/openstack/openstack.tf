@@ -46,7 +46,7 @@ resource "openstack_blockstorage_volume_v2" "volume" {
 
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}-${var.machine_name}"
-  image_id        = "703f5673-564d-40cf-b4f1-0134687809cc"
+  image_id        = "c25ec78b-9dcf-4596-9f6c-4909eaa4fb61"
   flavor_name     = "${var.flavor}"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
   security_groups = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
