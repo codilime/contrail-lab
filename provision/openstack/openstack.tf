@@ -46,7 +46,7 @@ resource "openstack_blockstorage_volume_v2" "volume" {
 
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}-${var.machine_name}"
-  image_id        = "c25ec78b-9dcf-4596-9f6c-4909eaa4fb61"
+  image_id        = "7977cc5c-3fa0-4f30-a834-d1a7353f4ac1"
   flavor_name     = "${var.flavor}"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
   security_groups = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
@@ -86,7 +86,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo pip uninstall -y docker docker-py docker-compose",
       "sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
       "sudo yum update -y",
-      "sudo yum install -y docker-ce kernel-devel kernel-headers git",
+      "sudo yum install -y epel-release docker-ce kernel-devel kernel-headers git",
       "sudo usermod -aG docker centos",
       "sudo yum install -y tcpdump tree vim nmap wget lnav htop",
       "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1 docker-py docker-compose==1.9.0",
