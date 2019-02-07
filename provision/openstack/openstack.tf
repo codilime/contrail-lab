@@ -82,15 +82,11 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
 
     inline = [
       "sudo easy_install pip==18.1",
-      "sudo yum remove -y --tolerant python2-pip python-yaml python-requests docker docker-common docker-selinux docker-engine",
-      "sudo pip uninstall -y docker docker-py docker-compose",
-      "sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
+      "sudo yum remove -y --tolerant python2-pip python-yaml python-requests",
+      "sudo yum install -y epel-release",
       "sudo yum update -y",
-      "sudo yum install -y epel-release docker-ce kernel-devel kernel-headers git",
-      "sudo usermod -aG docker centos",
-      "sudo yum install -y tcpdump tree vim nmap wget lnav htop",
-      "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1 docker-py docker-compose==1.9.0",
-      "sudo shutdown -r 1",
+      "sudo yum install -y git tcpdump tree vim nmap wget lnav htop",
+      "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1",
     ]
   }
 
@@ -121,8 +117,6 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "sudo mkdir -p /etc/docker",
       "sudo cp /tmp/daemon.json /etc/docker/",
-      "sudo service docker start",
-      "sudo systemctl enable docker",
     ]
   }
 
@@ -214,6 +208,23 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "cd ${local.contrail_path}",
       "ansible-playbook -e contrail_type=${var.contrail_type} -e contrail_path=${local.contrail_path} playbooks/contrail-go/deploy.yaml",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
+      "sudo usermod -aG docker centos",
+      "sudo systemctl enable docker",
     ]
   }
 }
