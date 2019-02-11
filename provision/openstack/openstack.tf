@@ -46,7 +46,7 @@ resource "openstack_blockstorage_volume_v2" "volume" {
 
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}-${var.machine_name}"
-  image_id        = "703f5673-564d-40cf-b4f1-0134687809cc"
+  image_id        = "7977cc5c-3fa0-4f30-a834-d1a7353f4ac1"
   flavor_name     = "${var.flavor}"
   key_pair        = "${openstack_compute_keypair_v2.KeyPair.id}"
   security_groups = ["${openstack_compute_secgroup_v2.contrail_security_group.id}"]
@@ -81,16 +81,13 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "sudo yum -y install kernel-devel kernel-headers ansible git",
-      "git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
-      "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
-      "cd ${local.contrail_path}",
-      "${local.checkout_patchset}",
+      "sudo easy_install pip==18.1",
+      "sudo yum remove -y --tolerant python2-pip python-yaml python-requests",
+      "sudo yum install -y epel-release",
+      "sudo yum update -y",
+      "sudo yum install -y git tcpdump tree vim nmap wget lnav htop",
+      "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1",
     ]
-  }
-
-  provisioner "local-exec" {
-    command = "${var.path}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip} ${var.path}"
   }
 
   provisioner "file" {
@@ -104,6 +101,46 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
       private_key = "${file(var.ssh_private_key)}"
     }
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "3m"
+    }
+
+    inline = [
+      "sudo mkdir -p /etc/docker",
+      "sudo cp /tmp/daemon.json /etc/docker/",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
+      "git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
+      "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
+      "cd ${local.contrail_path}",
+      "${local.checkout_patchset}",
+    ]
+  }
+
+  provisioner "local-exec" {
+    command = "${var.path}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip} ${var.path}"
   }
 
   provisioner "file" {
@@ -140,23 +177,6 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       agent       = "false"
       host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
       private_key = "${file(var.ssh_private_key)}"
-      timeout     = "3m"
-    }
-
-    inline = [
-      "sudo mkdir /etc/docker",
-      "sudo cp /tmp/daemon.json /etc/docker/",
-    ]
-  }
-
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "centos"
-      password    = ""
-      agent       = "false"
-      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
-      private_key = "${file(var.ssh_private_key)}"
       timeout     = "5m"
     }
 
@@ -171,7 +191,6 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo ansible-playbook -i inventory playbooks/install_openstack.yml -v",
       "sudo ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
-      "sudo shutdown -r 1",
     ]
   }
 
@@ -189,6 +208,23 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "cd ${local.contrail_path}",
       "ansible-playbook -e contrail_type=${var.contrail_type} -e contrail_path=${local.contrail_path} playbooks/contrail-go/deploy.yaml",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
+      "sudo usermod -aG docker centos",
+      "sudo systemctl enable docker",
     ]
   }
 }

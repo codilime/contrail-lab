@@ -1,7 +1,10 @@
 #!groovy
 library "atomSharedLibraries@${env.BRANCH_NAME}"
 
-@Library("atomSharedLibraries@master")
+// atomSharedLibraries is a shared library that must point to this repository.
+// This is configured in shared libraries in global jenkins configuration.
+
+@Library("atomSharedLibraries@install-pip")
 import org.FileManager
 import org.KeyManager
 import org.UserDirectory
@@ -36,7 +39,7 @@ pipeline {
         string(defaultValue: "", description: "", name: "Login")
         password(defaultValue: "", description: "", name: "Password")
         string(defaultValue: "default", description: "", name: "MachineName")
-        choice(choices: ["--create", "--destroy"], description: "", name: "CreateDestroy")
+        choice(choices: ["--create", "--destroy", "--delete-machine-dir"], description: "", name: "Operation")
         string(description: "", name: "branch", defaultValue: "${branch}")
         string(description: "", name: "routerID", defaultValue: "${routerID}")
         string(description: "", name: "routerName", defaultValue: "${routerName}")
@@ -53,6 +56,7 @@ pipeline {
         choice(choices: ["vnc_api", "contrail-go"], description: "", name: "contrail_type")
         string(description: "", name: "flavor", defaultValue: "${flavor}")
         string(defaultValue: "master", description: "", name: "patchset_ref")
+        choice(choices: ["yes", "no"], description: "Auto-destroy machine if building failed.", name: "destroy_if_failed")
     }
 
     stages {
@@ -98,24 +102,38 @@ pipeline {
                     ud_post = userDir
                     tf_post  = tf
                     conf_post = conf
+                    created_before = false
 
-                    if ("${params.CreateDestroy}" == "--create") {
+                    if ("${params.Operation}" == "--create") {
                         if(!userDir.IsNewMachine()){
+                            created_before = true
                             error("It seems that there are actually resources with that name.\nPlease destroy them first or use if you just forgot about them. :)")
                         } else {
                             tf.CreateMachine(userDir, km, conf, steps)
                         }
-                    } else {
+                    } else if ("${params.Operation}" == "--destroy") {
                         tf.DestroyMachine(userDir, km, conf, steps)
+                    } else if ("${params.Operation}" == "--delete-machine-dir") {
+                        userDir.DeleteMachineDirectory()
                     }
                 }
             }
             post {
                 success {
                     script {
-                        if ("${params.CreateDestroy}" == "--create") {
+                        if ("${params.Operation}" == "--create") {
                             keys = km_post
                             keys.DeleteKeys()
+                        }
+                    }
+                }
+                failure {
+                    script {
+                        if ("${params.Operation}" == "--create" && params.destroy_if_failed == "yes" && created_before == false) {
+                            userDir = ud_post
+                            km = km_post
+                            conf = conf_post
+                            tf.DestroyMachine(userDir, km, conf, steps)
                         }
                     }
                 }
