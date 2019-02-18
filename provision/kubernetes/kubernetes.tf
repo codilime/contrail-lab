@@ -176,6 +176,9 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_k8s.yml",
       "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_contrail.yml",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
+      "sudo yum install -y epel-release",
+      "sudo yum install -y byobu vim",
+      "sudo usermod -aG docker centos",
       "sudo shutdown -r 1",
     ]
   }

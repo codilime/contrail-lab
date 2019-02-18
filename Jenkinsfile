@@ -1,10 +1,10 @@
 #!groovy
-library "atomSharedLibraries@${env.BRANCH_NAME}"
+library "jozefSharedLibraries@${env.BRANCH_NAME}"
 
 // atomSharedLibraries is a shared library that must point to this repository.
 // This is configured in shared libraries in global jenkins configuration.
 
-@Library("atomSharedLibraries@master")
+@Library("jozefSharedLibraries@add_utils")
 import org.FileManager
 import org.KeyManager
 import org.UserDirectory
