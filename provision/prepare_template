@@ -1,4 +1,13 @@
 #!/bin/bash
-cp ../../$3/$4/$5/template.yaml ../../$3/$4/$5/instances.yaml
-sed  -i "s|@localip|$1|g" "../../$3/$4/$5/instances.yaml"
-sed  -i "s|@routerip|$2|g" "../../$3/$4/$5/instances.yaml"
+
+LocalIP=$1
+RouterIP=$2
+PublicIP=$3
+
+TemplateFile="../../$4/$5/$6/template.yaml"
+InstancesFile="../../$4/$5/$6/instances.yaml"
+
+cp "$TemplateFile" "$InstancesFile"
+sed  -i "s|@localip|$LocalIP|g" "$InstancesFile"
+sed  -i "s|@routerip|$RouterIP|g" "$InstancesFile"
+sed  -i "s|@publicip|$PublicIP|g" "$InstancesFile"
