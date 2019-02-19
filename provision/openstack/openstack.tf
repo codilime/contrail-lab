@@ -140,7 +140,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
   }
 
   provisioner "local-exec" {
-    command = "${var.path}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${var.routerip} ${var.path}"
+    command = "${var.path}/prepare_template ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} ${openstack_networking_floatingip_v2.floatip_1.address} ${var.routerip} ${var.path}"
   }
 
   provisioner "file" {
