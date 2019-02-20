@@ -1,3 +1,11 @@
 #!/bin/bash
-sed  -i "s|@localip|$1|g" "$3/instances.yaml"
-sed  -i "s|@routerip|$2|g" "$3/instances.yaml"
+
+LocalIP=$1
+PublicIP=$2
+RouterIP=$3
+
+InstancesFile="$4/instances.yaml"
+
+sed -i "s|@localip|$LocalIP|g" "$InstancesFile"
+sed -i "s|@publicip|$PublicIP|g" "$InstancesFile"
+sed -i "s|@routerip|$RouterIP|g" "$InstancesFile"
