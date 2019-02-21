@@ -10,7 +10,6 @@ provider "openstack" {
 resource "openstack_compute_keypair_v2" "KeyPair" {
   name       = "${replace(var.user_name,".","-")}-${var.machine_name}-KeyPair"
   public_key = "${file("${var.ssh_key_file}")}"
-
 }
 
 resource "openstack_compute_secgroup_v2" "contrail_security_group" {
@@ -81,17 +80,17 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "sudo easy_install pip==18.1",
       "sudo yum remove -y --tolerant python2-pip python-yaml python-requests",
       "sudo yum install -y epel-release",
       "sudo yum update -y",
-      "sudo yum install -y git tcpdump tree vim nmap wget lnav htop",
-      "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1",
+      "sudo yum install -y git tcpdump tree vim nmap wget lnav htop jq",
+      "sudo easy_install pip==18.1",
+      "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1 yq",
     ]
   }
 
   provisioner "file" {
-    source      = "/${var.path}/daemon.json"
+    source      = "${var.path}/daemon.json"
     destination = "/tmp/daemon.json"
 
     connection {
@@ -208,6 +207,23 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "cd ${local.contrail_path}",
       "ansible-playbook -e contrail_type=${var.contrail_type} -e contrail_path=${local.contrail_path} playbooks/contrail-go/deploy.yaml",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
+      "cd /home/centos/contrail-ansible-deployer/config/",
+      "cp instances.yaml instances.yaml.bk",
     ]
   }
 
