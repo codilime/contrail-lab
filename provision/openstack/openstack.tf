@@ -83,7 +83,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo yum remove -y --tolerant python2-pip python-yaml python-requests",
       "sudo yum install -y epel-release",
       "sudo yum update -y",
-      "sudo yum install -y git tcpdump tree vim nmap wget lnav htop jq",
+      "sudo yum install -y git tcpdump tree vim nmap wget lnav htop jq byobu",
       "sudo easy_install pip==18.1",
       "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1 yq",
     ]

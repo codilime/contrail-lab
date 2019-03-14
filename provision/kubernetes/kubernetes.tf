@@ -85,7 +85,8 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "sudo yum -y install kernel-devel kernel-headers ansible git tcpdump vim",
+      "sudo yum install -y epel-release",
+      "sudo yum -y install kernel-devel kernel-headers ansible git tcpdump vim byobu",
       "git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
       "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
       "cd ${local.contrail_path}",
