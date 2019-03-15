@@ -61,6 +61,7 @@ resource "openstack_networking_floatingip_v2" "floatip_1" {
 
 locals {
   contrail_path = "$HOME/go/src/github.com/Juniper/contrail"
+  contrail_test_path = "$HOME/contrail-test"
   checkout_patchset = "${var.patchset_ref != "master" ? "git init && git fetch https://review.opencontrail.org/Juniper/contrail ${var.patchset_ref} && git checkout FETCH_HEAD" : "echo \"default_branch: master\""}"
 }
 
@@ -133,6 +134,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     inline = [
       "git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
       "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
+      "git clone https://github.com/Juniper/contrail-test ${local.contrail_test_path}",
       "cd ${local.contrail_path}",
       "${local.checkout_patchset}",
     ]
@@ -185,11 +187,11 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
       "sudo cp /tmp/id_rsa /home/centos/",
       "sudo chmod +x /usr/local/bin/vrouter.sh",
       "sudo chmod 600 /home/centos/id_rsa",
+      "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
       "cd contrail-ansible-deployer",
       "sudo ansible-playbook -e orchestrator=openstack -i inventory/ playbooks/configure_instances.yml",
       "sudo ansible-playbook -i inventory playbooks/install_openstack.yml -v",
       "sudo ansible-playbook -i inventory/ -e orchestrator=openstack playbooks/install_contrail.yml",
-      "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
     ]
   }
 
