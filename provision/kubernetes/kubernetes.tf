@@ -85,12 +85,11 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
+      "sudo yum remove -y --tolerant python2-pip python-yaml python-requests",
       "sudo yum install -y epel-release",
-      "sudo yum -y install kernel-devel kernel-headers ansible git tcpdump vim byobu",
-      "git clone http://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
-      "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
-      "cd ${local.contrail_path}",
-      "${local.checkout_patchset}",
+      "sudo yum update -y",
+      "sudo yum install -y python-pip git tcpdump tree vim nmap wget lnav htop jq byobu",
+      "sudo pip install ansible==2.4.2 PyYAML requests==2.11.1 yq",
     ]
   }
 
@@ -101,32 +100,6 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
   provisioner "file" {
     source      = "${var.path}/daemon.json"
     destination = "/tmp/daemon.json"
-
-    connection {
-      type        = "ssh"
-      agent       = "false"
-      user        = "centos"
-      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
-      private_key = "${file(var.ssh_private_key)}"
-    }
-  }
-
-  provisioner "file" {
-    source      = "${var.ssh_private_key}"
-    destination = "/tmp/id_rsa"
-
-    connection {
-      type        = "ssh"
-      agent       = "false"
-      user        = "centos"
-      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
-      private_key = "${file(var.ssh_private_key)}"
-    }
-  }
-
-  provisioner "file" {
-    source      = "${var.path}/instances.yaml"
-    destination = "/tmp/instances.yaml"
 
     connection {
       type        = "ssh"
@@ -166,10 +139,54 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
+      "git clone https://github.com/Juniper/contrail-ansible-deployer -b ${var.branch}",
+      "git clone https://github.com/Juniper/contrail ${local.contrail_path}",
+      "cd ${local.contrail_path}",
+      "${local.checkout_patchset}",
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${var.ssh_private_key}"
+    destination = "/tmp/id_rsa"
+
+    connection {
+      type        = "ssh"
+      agent       = "false"
+      user        = "centos"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+    }
+  }
+
+  provisioner "file" {
+    source      = "${var.path}/instances.yaml"
+    destination = "/tmp/instances.yaml"
+
+    connection {
+      type        = "ssh"
+      agent       = "false"
+      user        = "centos"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+    }
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      password    = ""
+      agent       = "false"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+      timeout     = "5m"
+    }
+
+    inline = [
       "cd /home/centos",
       "sudo cp /tmp/instances.yaml /home/centos/contrail-ansible-deployer/config/",
       "sudo cp /tmp/id_rsa /home/centos/",
-      "sudo chmod +x /usr/local/bin/vrouter.sh",
       "sudo chmod 600 /home/centos/id_rsa",
       "cd contrail-ansible-deployer",
       "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/configure_instances.yml",
@@ -227,6 +244,7 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
 
     inline = [
       "sudo usermod -aG docker centos",
+      "sudo systemctl enable docker",
     ]
   }
 }
