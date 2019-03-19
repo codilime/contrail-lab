@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o xtrace
+set -o verbose
+
+cd /home/centos
+sudo cp /tmp/instances.yaml /home/centos/contrail-ansible-deployer/config/
+sudo cp /tmp/id_rsa /home/centos/
+sudo chmod 600 /home/centos/id_rsa
+
+cd contrail-ansible-deployer
+sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/configure_instances.yml
+sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_k8s.yml
+sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_contrail.yml

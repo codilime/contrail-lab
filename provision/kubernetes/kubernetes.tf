@@ -172,6 +172,19 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
   }
 
+  provisioner "file" {
+    source      = "${var.path}/run-cad-k8s"
+    destination = "/tmp/run-cad-k8s"
+
+    connection {
+      type        = "ssh"
+      agent       = "false"
+      user        = "centos"
+      host        = "${openstack_networking_floatingip_v2.floatip_1.address}"
+      private_key = "${file(var.ssh_private_key)}"
+    }
+  }
+
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
@@ -184,16 +197,9 @@ resource "openstack_compute_floatingip_associate_v2" "floatip_1" {
     }
 
     inline = [
-      "cd /home/centos",
-      "sudo cp /tmp/instances.yaml /home/centos/contrail-ansible-deployer/config/",
-      "sudo cp /tmp/id_rsa /home/centos/",
-      "sudo chmod 600 /home/centos/id_rsa",
-      "cd contrail-ansible-deployer",
-      "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/configure_instances.yml",
-      "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_k8s.yml",
-      "sudo ansible-playbook -i inventory/ -e orchestrator=kubernetes playbooks/install_contrail.yml",
+      "chmod a+x /tmp/run-cad-k8s",
+      "/tmp/run-cad-k8s",
       "echo ${openstack_compute_instance_v2.basic.network.0.fixed_ip_v4} $HOSTNAME | sudo tee --append /etc/hosts",
-      "sudo shutdown -r 1",
     ]
   }
 
