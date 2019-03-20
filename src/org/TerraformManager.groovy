@@ -5,13 +5,14 @@ package org
 class TerraformManager implements Serializable {
 
     TerraformManager (
-        String scriptFilePath, String variablesFilePath, String daemonFile, String instancesFile, String prepareInstancesFile, FileManager fm
+        String scriptFilePath, String variablesFilePath, String daemonFile, String instancesFile, String prepareInstancesFile, String runCadFile, FileManager fm
         ) {
         this.daemonFile = daemonFile
         this.instancesFile = instancesFile
         this.prepareInstancesFile = prepareInstancesFile
         this.variablesFilePath = scriptFilePath
         this.scriptFilePath = variablesFilePath
+        this.runCadFile = runCadFile
         this.fileManager = fm
     }
 
@@ -84,18 +85,21 @@ class TerraformManager implements Serializable {
         String daemonName = fileManager.GetFileName(this.daemonFile)
         String instancesName = fileManager.GetFileName(this.instancesFile)
         String prepareInstancesName = fileManager.GetFileName(this.prepareInstancesFile)
+        String runCadFile = fileManager.GetFileName(this.runCadFile)
 
         fileManager.Copy(this.variablesFilePath, destination + "/" + variablesName)
         fileManager.Copy(this.scriptFilePath, destination + "/" + scriptName)
         fileManager.Copy(this.daemonFile, destination + "/" + daemonName)
         fileManager.Copy(this.instancesFile, destination + "/" + instancesName)
         fileManager.Copy(this.prepareInstancesFile, destination + "/" + prepareInstancesName)
+        fileManager.Copy(this.runCadFile, destination + "/" + runCadFile)
 
         this.variablesFilePath = destination + "/" + variablesName
         this.scriptFilePath = destination + "/" + scriptName
         this.daemonFile = destination + "/" + daemonName
         this.instancesFile = destination + "/" + instancesName
         this.prepareInstancesFile = destination + "/" + prepareInstancesName
+        this.runCadFile = destination + "/" + runCadFile
     }
 
     public void AddPermissions() {
@@ -115,5 +119,6 @@ class TerraformManager implements Serializable {
     private String daemonFile
     private String instancesFile
     private String prepareInstancesFile
+    private String runCadFile
     private FileManager fileManager
 }

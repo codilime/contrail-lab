@@ -81,7 +81,7 @@ pipeline {
                     userDir.CreateUserDirectory()
 
                     String instancesFile = resolveInstancesYamlFile(unstashParam("instances_yaml"), fm.GetWorkspace())
-                    TerraformManager tf = ["provision/${params.orchestrator}/variables.tf", "provision/${params.orchestrator}/${params.orchestrator}.tf", "provision/daemon.json", instancesFile, "provision/prepare_template", fm]
+                    TerraformManager tf = ["provision/${params.orchestrator}/variables.tf", "provision/${params.orchestrator}/${params.orchestrator}.tf", "provision/daemon.json", instancesFile, "provision/prepare_template", "provision/run-cad-k8s", fm]
 
                     MachineConfiguration conf = []
                     conf.UserName = params.Login
