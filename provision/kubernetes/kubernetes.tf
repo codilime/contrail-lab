@@ -38,11 +38,6 @@ resource "openstack_compute_secgroup_v2" "contrail_security_group" {
   }
 }
 
-resource "openstack_blockstorage_volume_v2" "volume" {
-  name = "${var.user_name}-${var.machine_name}-volume"
-  size = 100
-}
-
 resource "openstack_compute_instance_v2" "basic" {
   name            = "${var.user_name}-${var.machine_name}"
   image_id        = "7977cc5c-3fa0-4f30-a834-d1a7353f4ac1"
@@ -53,11 +48,6 @@ resource "openstack_compute_instance_v2" "basic" {
   network {
     name = "${var.network_name}"
   }
-}
-
-resource "openstack_compute_volume_attach_v2" "attached" {
-  instance_id = "${openstack_compute_instance_v2.basic.id}"
-  volume_id = "${openstack_blockstorage_volume_v2.volume.id}"
 }
 
 resource "openstack_networking_floatingip_v2" "floatip_1" {
