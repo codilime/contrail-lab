@@ -4,7 +4,7 @@ library "atomSharedLibraries@${env.BRANCH_NAME}"
 // atomSharedLibraries is a shared library that must point to this repository.
 // This is configured in shared libraries in global jenkins configuration.
 
-@Library("atomSharedLibraries@master")
+@Library("atomSharedLibraries@ui")
 import org.FileManager
 import org.KeyManager
 import org.UserDirectory
